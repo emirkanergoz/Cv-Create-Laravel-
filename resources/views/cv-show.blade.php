@@ -12,7 +12,7 @@
     @if($cv->getFirstMediaUrl('profile_pics'))
         <img src="{{ $cv->getFirstMediaUrl('profile_pics') }}" alt="Profile Picture" width="200">
     @endif
-
+.
     <p><strong>First Name:</strong> {{ $cv->first_name }}</p>
     <p><strong>Last Name:</strong> {{ $cv->last_name }}</p>
     <p><strong>Email:</strong> {{ $cv->email }}</p>
