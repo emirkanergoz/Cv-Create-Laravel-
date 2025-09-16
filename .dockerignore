@@ -1,0 +1,15 @@
+vendor
+node_modules
+public/storage
+.git
+.gitignore
+docker-compose.yml
+dockerfile
+storage/*.key
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+node_modules
+*.log
+
