@@ -25,6 +25,8 @@
 
 
     <p><a href="{{ route('cv.form') }}">Back to form</a></p>
+
+    <a href="{{ route('cv.download', $cv->id) }}" class="btn btn-primary">Download PDF</a>
 </div>
 @vite('resources/js/app.js')
 </body>

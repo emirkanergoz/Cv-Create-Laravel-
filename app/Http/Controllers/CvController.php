@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\CvBilgileri;
 use Illuminate\Http\Request;
 
@@ -11,14 +11,6 @@ class CvController extends Controller
     {
         // Validasyon
         $request->validate([
-            'first_name' => 'required|string',
-            'last_name'  => 'required|string',
-            'email'      => 'required|email',
-            'phone'      => 'required',
-            'birth_date' => 'required|date',
-            'education'  => 'required|string',
-            'experience' => 'required|string',
-            'skills'     => 'nullable|string',
             'about'      => 'required|string',
             'profile_pic' => 'required|image|max:2048',
         ]);
@@ -51,5 +43,14 @@ class CvController extends Controller
     {
         $cv = CvBilgileri::findOrFail($id);
         return view('cv-show', compact('cv'));
+    }
+
+    public function downloadPdf($id)
+    {
+        $cv = CvBilgileri::findOrFail($id);
+
+        $pdf = Pdf::loadView('cv.pdf',compact("cv"));
+
+        return $pdf->download($cv->first_name . '_' . $cv->last_name . '.pdf');
     }
 }
