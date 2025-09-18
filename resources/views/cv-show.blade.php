@@ -7,6 +7,15 @@
     @vite('resources/css/style.css')
 </head>
 <body>
+@auth
+<form id="logout-form-top" action="{{ route('logout') }}" method="POST" style="display:none;">
+    @csrf
+  </form>
+<div style="position: fixed; top: 10px; right: 10px; z-index: 1050;">
+  <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('logout-form-top').submit();">Logout</button>
+  <span class="ms-2 small text-muted">{{ auth()->user()->name }}</span>
+</div>
+@endauth
 <div class="container" style="max-width: 600px;">
     <h2>CV Detail</h2>
     @if($cv->getFirstMediaUrl('profile_pics'))
@@ -26,7 +35,9 @@
 
     <p><a href="{{ route('cv.form') }}">Back to form</a></p>
 
-    <a href="{{ route('cv.download', $cv->id) }}" class="btn btn-primary">Download PDF</a>
+   <p><a href="{{ route('cv.download', $cv->id) }}" class="btn btn-primary">Download PDF</a><p>
+
+
 </div>
 @vite('resources/js/app.js')
 </body>

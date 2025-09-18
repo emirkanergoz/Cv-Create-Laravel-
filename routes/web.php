@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CvController as AdminCvController;
 
 // Form sayfası
 Route::get('/', function () {
@@ -21,13 +23,16 @@ Route::get('/cv/{id}/download', [CvController::class, 'downloadPdf'])->name('cv.
 
 Route::get('/admin/login-template', function () {
     if (Auth::check()) {
-        return redirect('/admin/dashboard-template');
+        return redirect()->route('admin.dashboard');
     }
     return view('admin.templates.login');
 });
+// Eski önizleme rotasını korumak yerine asıl korumalı dashboard'a yönlendir
 Route::get('/admin/dashboard-template', function () {
-    return view('admin.templates.dashboard');
+    return redirect()->route('admin.dashboard');
 });
+
+// Registration disabled
 
 // Minimal auth endpoint with clearer errors
 Route::post('/login', function (Request $request) {
@@ -47,9 +52,17 @@ Route::post('/login', function (Request $request) {
         return back()->withErrors(['email' => 'Şifre hatalı.'])->onlyInput('email');
     }
 
+    // Admin-only login
+    $selectedRole = $request->input('login_role'); // 'user' | 'admin'
+    $userRole = $user->getAttribute('role');
+    if ($userRole !== 'admin' || ($selectedRole && $selectedRole !== 'admin')) {
+        return back()->withErrors(['email' => 'Only admins can log in.'])->onlyInput('email');
+    }
+
     Auth::login($user, $remember);
     $request->session()->regenerate();
-    return redirect('/admin/dashboard-template');
+    // Admin dashboard
+    return redirect()->intended(route('admin.dashboard'));
 })->name('login');
 
 // Hızlı teşhis: oturum ve kullanıcıyı gör
@@ -67,3 +80,19 @@ Route::post('/logout', function (\Illuminate\Http\Request $request) {
     $request->session()->regenerateToken();
     return redirect('/admin/login-template');
 })->name('logout');
+
+// Admin dashboard (korumalı basit kontrol)
+Route::get('/admin/dashboard', function () {
+    if (!Auth::check() || Auth::user()->getAttribute('role') !== 'admin') {
+        abort(403);
+    }
+    return view('admin.templates.dashboard');
+})->name('admin.dashboard');
+
+// Admin: CV management
+Route::prefix('admin')->group(function () {
+    Route::get('/cvs', [AdminCvController::class, 'index'])->name('admin.cvs.index');
+    Route::get('/cvs/{cv}/edit', [AdminCvController::class, 'edit'])->name('admin.cvs.edit');
+    Route::put('/cvs/{cv}', [AdminCvController::class, 'update'])->name('admin.cvs.update');
+    Route::delete('/cvs/{cv}', [AdminCvController::class, 'destroy'])->name('admin.cvs.destroy');
+});

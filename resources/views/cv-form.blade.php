@@ -12,6 +12,32 @@
     @vite('resources/css/style.css')
 </head>
 <body>
+@auth
+    <form id="logout-form-top" action="{{ route('logout') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
+
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 1050;" class="d-flex align-items-center gap-2">
+        @if(Auth::user()->role === 'admin')
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-primary">
+                Go To Dashboard
+            </a>
+        @endif
+
+        <button type="button" class="btn btn-sm btn-secondary"
+                formnovalidate
+                onclick="document.getElementById('logout-form-top').submit();">
+            Logout
+        </button>
+
+        <span class="ms-2 small text-muted">{{ auth()->user()->name }}</span>
+    </div>
+@endauth
+@guest
+<div style="position: fixed; top: 10px; right: 10px; z-index: 1050; display: flex; gap: 8px;">
+  <a href="{{ url('/admin/login-template') }}" class="btn btn-sm btn-primary">Admin Panel</a>
+</div>
+@endguest
 <h1 class="text-center" id="baslik">CV Form</h1>
 
 <div class="container" style="max-width: 600px;">
